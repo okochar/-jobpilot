@@ -6,7 +6,7 @@ type Job={id:string;title:string;company:string;location:string;url:string;sourc
 type Status="saved"|"applied"|"interview"|"rejected";
 const STORE="jobpilot-tracker-v1";
 const statuses:Status[]=["saved","applied","interview","rejected"];
-export default function Home(){
+function LegacyHome(){
  const [jobs,setJobs]=useState<Job[]>([]),[tracking,setTracking]=useState<Record<string,Status>>({}),[query,setQuery]=useState(""),[tab,setTab]=useState("discover"),[busy,setBusy]=useState(false),[error,setError]=useState(""),[updated,setUpdated]=useState(""),[checked,setChecked]=useState(0);
  useEffect(()=>{try{setTracking(JSON.parse(localStorage.getItem(STORE)||"{}"));}catch{} void refresh();},[]);
  async function refresh(){setBusy(true);setError("");try{const r=await fetch("/api/jobs",{cache:"no-store"});if(!r.ok)throw new Error("Search failed");const data=await r.json();setJobs(data.jobs||[]);setChecked(data.checked||0);setUpdated(new Date(data.fetchedAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}));if(data.errors?.length)setError("Some sources were unavailable: "+data.errors.join(", "));}catch{setError("Could not load live jobs. Check your internet connection and try again.");}finally{setBusy(false);}}
@@ -24,3 +24,5 @@ export default function Home(){
  <div className="footnote">JobPilot finds public listings and lets you track progress on this device. It does not submit applications, confirm eligibility, or access your Gmail. Your statuses are stored in this browser only. {checked>0?`${checked} listings checked in the latest search.`:""}</div>
  </section></main></div>;
 }
+
+export { default } from "./JobPilotDashboard";
